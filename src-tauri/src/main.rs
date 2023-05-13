@@ -7,6 +7,7 @@ use tauri::Manager;
 #[cfg(target_os = "macos")]
 mod menu;
 mod tray;
+mod clipboard;
 
 use tauri::{utils::config::AppUrl, WindowUrl};
 
@@ -48,6 +49,7 @@ fn main() {
                     .unwrap();
             }
         }))
+        .invoke_handler(tauri::generate_handler![clipboard::clipboard_read_image])
         .build(context)
         .expect("error while building tauri application")
         .run(run_event_handler)
