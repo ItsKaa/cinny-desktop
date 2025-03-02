@@ -48,8 +48,7 @@ fn main() {
                     .unwrap();
             }
         }))
-        .run(context)
-        .build(tauri::generate_context!())
+        .build(context)
         .expect("error while building tauri application")
         .run(run_event_handler)
 }
