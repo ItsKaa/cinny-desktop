@@ -4253,6 +4253,7 @@ dependencies = [
  "os_pipe",
  "percent-encoding",
  "plist",
+ "png",
  "rand 0.8.5",
  "raw-window-handle",
  "regex",
