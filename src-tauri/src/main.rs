@@ -60,6 +60,17 @@ fn run_event_handler<R: tauri::Runtime>(app: &tauri::AppHandle<R>, event: tauri:
         tauri::RunEvent::WindowEvent { label, event, .. } => {
             tray::window_event_handler(app, &label, &event);
         }
+        tauri::RunEvent::Ready => {
+            let minimize = std::env::var("MINIMIZE").unwrap_or_default();
+            if minimize == "1" || minimize.to_lowercase() == "true" {
+                let window = app.get_window("main").unwrap();
+                let tray_handle = match app.tray_handle_by_id(crate::tray::TRAY_LABEL) {
+                    Some(h) => h,
+                    None => return,
+                };
+                tray::toggle_window_state(window, tray_handle);
+            }
+        }
         _ => {}
     }
 }
