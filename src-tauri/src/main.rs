@@ -3,7 +3,7 @@
     windows_subsystem = "windows"
 )]
 
-use tauri::Manager;
+use tauri::{AppHandle, Manager};
 #[cfg(target_os = "macos")]
 mod menu;
 mod tray;
@@ -49,7 +49,10 @@ fn main() {
                     .unwrap();
             }
         }))
-        .invoke_handler(tauri::generate_handler![clipboard::clipboard_read_image])
+        .invoke_handler(tauri::generate_handler![
+            clipboard::clipboard_read_image,
+            update_icon
+        ])
         .build(context)
         .expect("error while building tauri application")
         .run(run_event_handler)
@@ -73,4 +76,25 @@ fn run_event_handler<R: tauri::Runtime>(app: &tauri::AppHandle<R>, event: tauri:
         }
         _ => {}
     }
+}
+
+#[tauri::command]
+fn update_icon(app: AppHandle, notification: bool, highlight: bool) {
+    let tray_handle = app.tray_handle_by_id(tray::TRAY_LABEL).expect("Failed to get tray handle");
+    let mut icon_file_name = "32x32.png";
+    if notification {
+        if highlight {
+            icon_file_name = "cinny-highlight-32x32.png";
+        }
+        else {
+            icon_file_name = "cinny-unread-32x32.png";
+        }
+    }
+
+    let path_icon:String = format!("icons/{}", icon_file_name);
+    let icon = tauri::Icon::File(app.path_resolver().resolve_resource(path_icon).unwrap());
+    match tray_handle.set_icon(icon) {
+        Err(e) => eprintln!("Failed to set tray icon: {:?}", e),
+        Ok(_) => {},
+    };
 }
